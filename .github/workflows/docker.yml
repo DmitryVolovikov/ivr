@@ -1,0 +1,79 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set IMAGE_REPO lowercase
+        run: echo "IMAGE_REPO=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ env.IMAGE_REPO }}/rag-backend:latest
+            ghcr.io/${{ env.IMAGE_REPO }}/rag-backend:${{ github.sha }}
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ env.IMAGE_REPO }}/rag-frontend:latest
+            ghcr.io/${{ env.IMAGE_REPO }}/rag-frontend:${{ github.sha }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Check deploy secrets
+        id: check
+        shell: bash
+        run: |
+          if [ -n "${{ secrets.DEPLOY_HOST }}" ] && \
+             [ -n "${{ secrets.DEPLOY_USER }}" ] && \
+             [ -n "${{ secrets.DEPLOY_SSH_KEY }}" ] && \
+             [ -n "${{ secrets.DEPLOY_PATH }}" ]; then
+            echo "do_deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "do_deploy=false" >> "$GITHUB_OUTPUT"
+            echo "Deploy secrets are not set -> skipping deploy."
+          fi
+
+      - name: Deploy over SSH
+        if: ${{ steps.check.outputs.do_deploy == 'true' }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker image prune -f

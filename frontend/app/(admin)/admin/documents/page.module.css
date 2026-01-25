@@ -1,0 +1,69 @@
+.uploadCard {
+  background: #fff;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  padding: 16px;
+  display: grid;
+  gap: 10px;
+  box-shadow: none;
+}
+
+.tableCard {
+  background: #fff;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  padding: 16px;
+  display: grid;
+  gap: 10px;
+  box-shadow: none;
+}
+
+.table {
+  display: grid;
+  gap: 12px;
+}
+
+.tableHeader,
+.tableRow {
+  display: grid;
+  grid-template-columns: 0.5fr 1.5fr 0.8fr 1fr 1.2fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.tableHeader {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b7280;
+}
+
+.tableRow {
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+
+.status {
+  font-weight: 600;
+}
+
+.reason {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 960px) {
+  .tableHeader {
+    display: none;
+  }
+
+  .tableRow {
+    grid-template-columns: 1fr;
+  }
+}

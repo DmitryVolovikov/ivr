@@ -1,0 +1,15 @@
+.github
+.git
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.pytest_cache
+tests
+docs
+notebooks
+node_modules
+*.log
+*.sqlite3
+*.db

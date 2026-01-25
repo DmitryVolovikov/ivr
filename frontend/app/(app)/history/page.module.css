@@ -1,0 +1,48 @@
+.list {
+  display: grid;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: #fff;
+}
+
+.card {
+  padding: 14px 16px;
+  display: grid;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.card:last-child {
+  border-bottom: none;
+}
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.cardHeader h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.version {
+  font-size: 12px;
+  background: #e8f4f3;
+  color: var(--accent-strong);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(15, 118, 110, 0.2);
+}
+
+.meta {
+  margin: 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.link {
+  color: var(--accent-strong);
+  font-weight: 600;
+}
