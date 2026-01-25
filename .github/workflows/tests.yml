@@ -21,7 +21,6 @@ jobs:
       - name: Run tests
         run: pytest -q
         working-directory: backend
-        # Required app settings for test collection.
         env:
           SECRET_KEY: test-secret-key
           ADMIN_EMAIL: admin@example.com
