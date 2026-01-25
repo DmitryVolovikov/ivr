@@ -1,0 +1,74 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL}
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?Set ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD}
+      DOCS_PATH: ${DOCS_PATH:-/data/documents}
+      INDEXES_PATH: ${INDEXES_PATH:-/data/indexes}
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER:?Set DB_USER}
+      LLM_PROVIDER: ${LLM_PROVIDER:-stub}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:3b-instruct}
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-1}
+    depends_on:
+      - db
+    volumes:
+      - documents_data:/data/documents
+      - indexes_data:/data/indexes
+    ports:
+      - "8000:8000"
+
+  ollama:
+    image: ollama/ollama
+    profiles:
+      - ollama
+    command: ["serve"]
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:11434/api/tags"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "11434:11434"
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      API_PROXY_TARGET: ${API_PROXY_TARGET:-http://backend:8000}
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  db_data:
+  documents_data:
+  indexes_data:
+  ollama_data:

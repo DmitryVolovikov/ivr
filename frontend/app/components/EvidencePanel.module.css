@@ -1,0 +1,148 @@
+.panel {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 70vh;
+  overflow: hidden;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+}
+
+.count {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  border: 1px solid rgba(15, 118, 110, 0.2);
+  font-size: 12px;
+}
+
+.status {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.filters {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.filterButton {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #334155;
+  cursor: pointer;
+}
+
+.filterActive {
+  border-color: rgba(15, 118, 110, 0.45);
+  background: rgba(15, 118, 110, 0.08);
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.empty {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.list {
+  display: grid;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.card {
+  border-bottom: 1px solid var(--border);
+  padding: 12px 4px 12px 0;
+  display: grid;
+  gap: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.card:last-child {
+  border-bottom: none;
+}
+
+.card:hover {
+  background: rgba(15, 118, 110, 0.04);
+}
+
+.active {
+  background: rgba(15, 118, 110, 0.1);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.sourceIndex {
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2933;
+}
+
+.metaLine {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.snippet {
+  margin: 0;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.cardActions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cardLink {
+  color: var(--accent-strong);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.cardButton {
+  border: none;
+  background: transparent;
+  color: var(--accent-strong);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+}

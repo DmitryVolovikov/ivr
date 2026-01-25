@@ -1,0 +1,17 @@
+.text {
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.citation {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  margin: 0 2px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(15, 118, 110, 0.35);
+  background: rgba(15, 118, 110, 0.1);
+  color: var(--accent-strong);
+  font-weight: 600;
+  cursor: pointer;
+}

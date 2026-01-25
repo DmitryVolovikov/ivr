@@ -1,0 +1,96 @@
+version: "3.9"
+
+services:
+  reverse-proxy:
+    image: caddy:2.7
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - app_internal
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - app_internal
+
+  backend:
+    image: ghcr.io/dmitryvolovikov/ivr/rag-backend:latest
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL}
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?Set ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD}
+      DOCS_PATH: ${DOCS_PATH:-/data/documents}
+      INDEXES_PATH: ${INDEXES_PATH:-/data/indexes}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      DB_USER: ${DB_USER:?Set DB_USER}
+      LLM_PROVIDER: ${LLM_PROVIDER:-stub}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:4b-instruct}
+      OLLAMA_FALLBACK_MODEL: ${OLLAMA_FALLBACK_MODEL:-qwen2.5:3b-instruct}
+      OLLAMA_TEMPERATURE: ${OLLAMA_TEMPERATURE:-0.1}
+      OLLAMA_TOP_P: ${OLLAMA_TOP_P:-0.9}
+      OLLAMA_TOP_K: ${OLLAMA_TOP_K:-40}
+      OLLAMA_REPEAT_PENALTY: ${OLLAMA_REPEAT_PENALTY:-1.05}
+      OLLAMA_NUM_PREDICT: ${OLLAMA_NUM_PREDICT:-512}
+      OLLAMA_SEED: ${OLLAMA_SEED:-}
+      OLLAMA_STOP: ${OLLAMA_STOP:-}
+      RETRIEVE_K_FOR_LLM: ${RETRIEVE_K_FOR_LLM:-12}
+      LLM_SOURCES_K: ${LLM_SOURCES_K:-7}
+      UI_SOURCES_K: ${UI_SOURCES_K:-5}
+      LLM_EXCERPT_CHARS: ${LLM_EXCERPT_CHARS:-1200}
+      LLM_SOURCES_CHAR_LIMIT: ${LLM_SOURCES_CHAR_LIMIT:-9000}
+      RUN_MIGRATIONS: "1"
+    depends_on:
+      - db
+      - ollama
+    volumes:
+      - documents_data:/data/documents
+      - indexes_data:/data/indexes
+    networks:
+      - app_internal
+
+  ollama:
+    image: ollama/ollama
+    command: ["serve"]
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - app_internal
+
+  frontend:
+    image: ghcr.io/dmitryvolovikov/ivr/rag-frontend:latest
+    depends_on:
+      - backend
+    networks:
+      - app_internal
+
+volumes:
+  caddy_data:
+  caddy_config:
+  db_data:
+  documents_data:
+  indexes_data:
+  ollama_data:
+
+networks:
+  app_internal:
